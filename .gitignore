@@ -1,3 +1,4 @@
 .git/
 artifacts/
 build/
+.idea
