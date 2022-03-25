@@ -2,3 +2,5 @@
 artifacts/
 build/
 .idea
+node_modules/
+cache/
