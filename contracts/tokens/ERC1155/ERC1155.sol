@@ -8,12 +8,13 @@ import "../../utils/Address.sol";
 import "../../utils/ERC165.sol";
 import "./extensions/IERC1155MetadataURI.sol";
 import "hardhat/console.sol";
+import "../../exchange/HasTokenURI.sol";
 
 
 /**
  * @dev Implementation of Multi-Token Standard contract
  */
-contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
+contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
     using SafeMath for uint256;
     using Address for address;
 
@@ -32,14 +33,11 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
     // Mapping from account to operator approvals
     mapping(address => mapping(address => bool)) internal _operatorApprovals;
 
-    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
-    string private _uri;
+    // Mapping from token Id to royalty information 版税？？
 
-    /**
-     * @dev See {_setURI}.
-     */
-    constructor(string memory uri_) {
-        _setURI(uri_);
+
+
+    constructor(string memory _tokenURIPrefix) HasTokenURI(_tokenURIPrefix){
     }
 
 
@@ -58,8 +56,8 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
    * Clients calling this function must replace the `\{id\}` substring with the
    * actual token type ID.
    */
-    function uri(uint256) public view virtual override returns (string memory) {
-        return _uri;
+    function uri(uint256 tokenId) public view virtual override returns (string memory) {
+        return _tokenURI(tokenId);
     }
 
     /**
@@ -71,7 +69,11 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
      * @param _data    Additional data with no specified format, sent in call to `_to`
      */
     function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data) public virtual override {
+        console.log("safeTransferFrom", _from, _to, _id);
+        console.log(msg.sender);
+        console.log(_from);
         require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR, caller is not owner nor approved");
+
         _safeTransferFrom(_from, _to, _id, _amount, _data);
     }
 
@@ -109,7 +111,6 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, _from, _to, _asSingletonArray(_id), _asSingletonArray(_amount), _data);
         // Update balances
-
         require(_balances[_id][_from] >= _amount, "ERC1155#_safeTransferFrom, insufficient balance for transfer");
         // Subtract amount
         _balances[_id][_from] = _balances[_id][_from].sub(_amount);
@@ -150,31 +151,6 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
 
 
     /**
-     * @dev Sets a new URI for all token types, by relying on the token type ID
-     * substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
-     *
-     * By this mechanism, any occurrence of the `\{id\}` substring in either the
-     * URI or any of the amounts in the JSON file at said URI will be replaced by
-     * clients with the token type ID.
-     *
-     * For example, the `https://token-cdn-domain/\{id\}.json` URI would be
-     * interpreted by clients as
-     * `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
-     * for token type ID 0x4cce0.
-     *
-     * See {uri}.
-     *
-     * Because these URIs cannot be meaningfully represented by the {URI} event,
-     * this function emits no events.
-     */
-    function _setURI(string memory newuri) internal virtual {
-        _uri = newuri;
-        console.log("dddddd", _uri);
-    }
-
-
-    /**
      * @dev Creates `amount` tokens of token type `id`, and assigns them to `to`.
      *
      * Emits a {TransferSingle} event.
@@ -191,6 +167,7 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
         uint256 amount,
         bytes memory data
     ) internal virtual {
+        console.log("to", to);
         require(to != address(0), "ERC1155: mint to the zero address");
 
         address operator = msg.sender;
@@ -198,6 +175,7 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, address(0), to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
         _balances[id][to] += amount;
+        console.log("_balance", _balances[id][to]);
         emit TransferSingle(operator, address(0), to, id, amount);
 
         _doSafeTransferAcceptanceCheck(operator, address(0), to, id, amount, data);
@@ -331,6 +309,7 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI {
      * @return isOperator True if the operator is approved, false if not
      */
     function isApprovedForAll(address _owner, address _operator) public view virtual override returns (bool){
+        console.log("isApprovedForAll");
         return _operatorApprovals[_owner][_operator];
     }
 

@@ -1,19 +1,26 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-web3");
 
+// test account
+// ---------address-------------------------------| -----------------private -----------------
+// 0. 0x065a23D86752477FF27aa4a0A551476C1cFe6fC8  |  bf2f0fb645d9addf158a17599674c40fd1e5562997c3a0b1134b1456dd6e1958
+// 1. 0xb5D6146b0220A9DDd463503353951cf701D8e1F8  |  ae461a23ab134a673d10a62977d8a95f59bd02b79932a81304bd9dbd79e08ec6
+// 2. 0xb51d0ECbE57cef4fB98A2bf758eC44A1FEdd2922  |  4f9d72a2a2b6d9589db575b9a64bde0a7dac1f8ff750412231bf6a68a68a212c
+// 3. 0xC62E81Ac5F82748640aB48fBeB87E6018C2ac018  |  088caa6ce6fc13af1a273b9664ed83d3686826357bc06024830287ee1b5713b2
+
+
+
+
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  *
  * */
 module.exports = {
   networks: {
-    hardhat:{
-      loggingEnabled:true,
-      allowUnlimitedContractSize:true,
-    },
     localhost: {
       url: `http://localhost:7545`,
-      accounts: [`0xbf2f0fb645d9addf158a17599674c40fd1e5562997c3a0b1134b1456dd6e1958`],
+      accounts: [`bf2f0fb645d9addf158a17599674c40fd1e5562997c3a0b1134b1456dd6e1958`],
     }
     // gw_devnet_v1: {
     //   url: `http://127.0.0.1:8024`,
