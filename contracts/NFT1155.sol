@@ -32,6 +32,24 @@ contract NFT1155 is ERC1155, Ownable, ERC1155Supply {
         }
     }
 
+    function burn(address account, uint256 id, uint256 value) public onlyOwner {
+        require(
+            account == msg.sender || isApprovedForAll(account, msg.sender),
+            "ERC1155: caller is not owner nor approved"
+        );
+
+        _burn(account, id, value);
+    }
+
+    function burnBatch(address account, uint256[] memory ids, uint256[] memory values) public onlyOwner {
+        require(
+            account == msg.sender || isApprovedForAll(account, msg.sender),
+            "ERC1155: caller is not owner nor approved"
+        );
+
+        _burnBatch(account, ids, values);
+    }
+
     function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) internal override(ERC1155, ERC1155Supply) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
