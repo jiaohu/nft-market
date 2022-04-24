@@ -10,13 +10,15 @@ import "../../utils/Strings.sol";
 import "../../utils/ERC165.sol";
 import "../../interfaces/IERC721Receiver.sol";
 import "../../interfaces/IERC721.sol";
+import "hardhat/console.sol";
+import "../../exchange/HasTokenURI.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
+contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, HasTokenURI {
     using Address for address;
     using Strings for uint256;
 
@@ -45,7 +47,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor(string memory name_, string memory symbol_) {
+    constructor(string memory name_, string memory symbol_, string memory _tokenURIPrefix) HasTokenURI(_tokenURIPrefix) {
         _name = name_;
         _symbol = symbol_;
     }
@@ -200,6 +202,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId,
         bytes memory _data
     ) public virtual override {
+        console.log("sender", _msgSender());
+        console.log("from", from);
+        console.log("to", to);
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
         _safeTransfer(from, to, tokenId, _data);
     }
@@ -254,6 +259,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
         address owner = ERC721.ownerOf(tokenId);
+        console.log("_isApprovedOrOwner", owner);
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 

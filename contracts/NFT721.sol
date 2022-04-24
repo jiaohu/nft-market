@@ -10,11 +10,24 @@ contract NFT721 is ERC721, ERC721Burnable {
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("MyToken", "MTK") {}
+    constructor(string memory tokenURIPrefix) ERC721("MyToken", "MTK", tokenURIPrefix) {}
 
-    function createNFT(address to) public {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+    function createNFT(address to, uint256 tokenId, string memory tokenURI) public {
+        //        uint256 tokenId = _tokenIdCounter.current();
+        //        _tokenIdCounter.increment();
         _safeMint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
+    }
+
+    function listingNFT(uint256 tokenId) public {
+        _listingNFT(tokenId);
+    }
+
+    function cancelNFT(uint256 tokenId) public {
+        _cancelListNFT(tokenId);
+    }
+
+    function listingStatus(uint256 tokenId) public view returns (bool) {
+        return _listingStatus(tokenId);
     }
 }

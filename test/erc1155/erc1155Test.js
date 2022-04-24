@@ -1,4 +1,3 @@
-var utils = require("./utils.js");
 var conf = require("./config.js")
 const {ethers} = require("hardhat");
 const {defaultAbiCoder} = require("ethers/lib/utils");
@@ -17,7 +16,6 @@ describe("NFT1155", function () {
     let addr1;
     let addr2;
     let addrs;
-
 
     async function initUser() {
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();

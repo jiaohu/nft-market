@@ -6,6 +6,7 @@ node_modules/
 cache/
 test/erc1155/config.js
 test/erc1155/transfer.js
+hardhat.config.js
 address.json
 address2.json
 address_ambg.json
@@ -13,5 +14,4 @@ address_ambg_backend.json
 address_ambg_list.json
 address_rinkeby3.json
 address_rinkeby4.json
-hardhat.config.js
-sec.js
+
