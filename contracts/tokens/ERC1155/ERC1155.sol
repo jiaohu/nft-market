@@ -7,8 +7,9 @@ import "../../interfaces/IERC1155.sol";
 import "../../utils/Address.sol";
 import "../../utils/ERC165.sol";
 import "./extensions/IERC1155MetadataURI.sol";
-import "hardhat/console.sol";
 import "../../exchange/HasTokenURI.sol";
+import "hardhat/console.sol";
+import "../../utils/Counters.sol";
 
 
 /**
@@ -17,6 +18,7 @@ import "../../exchange/HasTokenURI.sol";
 contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
     using SafeMath for uint256;
     using Address for address;
+    using Counters for Counters.Counter;
 
     /***********************************|
     |        Variables and Events       |
@@ -33,11 +35,16 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
     // Mapping from account to operator approvals
     mapping(address => mapping(address => bool)) internal _operatorApprovals;
 
-    // Mapping from token Id to royalty information 版税？？
+    // Mapping from token ID for address to is listing
+    mapping(uint256 => mapping(address => bool)) internal _isListing;
+    mapping(uint256 => mapping(address => uint256)) internal listRecord;
+
+    Counters.Counter private listCount;
 
 
 
     constructor(string memory _tokenURIPrefix) HasTokenURI(_tokenURIPrefix){
+        listCount.increment();
     }
 
 
@@ -69,12 +76,42 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
      * @param _data    Additional data with no specified format, sent in call to `_to`
      */
     function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes memory _data) public virtual override {
-        console.log("safeTransferFrom", _from, _to, _id);
-        console.log(msg.sender);
-        console.log(_from);
-        require((msg.sender == _from) || isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR, caller is not owner nor approved");
+        console.log("sender %s", msg.sender);
+        console.log("_from %s", _from);
+        console.log("_to %s", _to);
+        require(isApprovedForAll(_from, msg.sender), "ERC1155#safeTransferFrom: INVALID_OPERATOR, caller is not owner nor approved");
+        // 判断该NFT是不是挂单
+        require(_isListing[_id][_from] == true, "Transfer ERROR: nft not listing");
 
         _safeTransferFrom(_from, _to, _id, _amount, _data);
+    }
+
+    function _listingRecord(uint256 tokenId) internal view returns (uint256) {
+        return listRecord[tokenId][msg.sender];
+    }
+
+    function _listingStatus(uint256 tokenId) internal view returns (bool) {
+        return _isListing[tokenId][msg.sender];
+    }
+
+    function _listingNFT(uint256 tokenId) internal virtual {
+        // msg.sender 是调用该方法的人，那么首先要判断他是不是有这个
+        console.log("_listingNFT", msg.sender);
+        require(_balances[tokenId][msg.sender] != 0, "ListingNFT error: INVALID_OPERATOR, caller not have the asset");
+        require(listRecord[tokenId][msg.sender] == 0, "ListingNFT error: INVALID_OPERATOR, the asset has listed");
+        // 将其设置为listing
+        _isListing[tokenId][msg.sender] = true;
+        // 设置listing的编号
+        listRecord[tokenId][msg.sender] = listCount.current();
+        listCount.increment();
+    }
+
+    function _cancelNFT(uint256 tokenId, uint256 recordId) internal {
+        // 首先判断这个nft是不是属于这个用户
+        require(listRecord[tokenId][msg.sender] == recordId && recordId != 0, "Cancel error: the nft not belong to the operator");
+        // 其次判断他是不是listing状态
+        require(_isListing[tokenId][msg.sender] == true, "Cancel Error: INVALID_OPERATOR, this token not listing");
+        _isListing[tokenId][msg.sender] = false;
     }
 
     /**
@@ -167,7 +204,6 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        console.log("to", to);
         require(to != address(0), "ERC1155: mint to the zero address");
 
         address operator = msg.sender;
@@ -175,7 +211,6 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
         _beforeTokenTransfer(operator, address(0), to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
         _balances[id][to] += amount;
-        console.log("_balance", _balances[id][to]);
         emit TransferSingle(operator, address(0), to, id, amount);
 
         _doSafeTransferAcceptanceCheck(operator, address(0), to, id, amount, data);
@@ -309,7 +344,6 @@ contract ERC1155 is IERC1155, ERC165, IERC1155MetadataURI, HasTokenURI {
      * @return isOperator True if the operator is approved, false if not
      */
     function isApprovedForAll(address _owner, address _operator) public view virtual override returns (bool){
-        console.log("isApprovedForAll");
         return _operatorApprovals[_owner][_operator];
     }
 

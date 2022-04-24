@@ -23,5 +23,11 @@
     "ethers": "^5.4.1",
     "hardhat": "^2.9.1",
     "web3": "^1.7.1"
+  },
+  "dependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
+    "delay": "^5.0.0",
+    "ethereum-input-data-decoder": "^0.4.1",
+    "ethereumjs-util": "^7.1.4"
   }
 }

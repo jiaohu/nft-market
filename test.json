@@ -1,0 +1,14 @@
+{
+  "NFT1155": {
+    "address": "0xD1a27f5744a4247050a697Db1a92828f2C42513c"
+  },
+  "transferProxy": {
+    "address": "0x815c350cf4D6F3ec22068402f9ADaf50aAb7C9dE"
+  },
+  "exchangeOrderHolder": {
+    "address": "0x1bD3fE01b47C0c7A364cC7050A36a1672C9b444c"
+  },
+  "NFTBackend": {
+    "address": "0xA4EC5095f71D7fFfBf0896368D79f835D407beF7"
+  }
+}

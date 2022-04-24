@@ -4,4 +4,13 @@ build/
 .idea
 node_modules/
 cache/
-hello.json
+test/erc1155/config.js
+address.json
+address2.json
+address_ambg.json
+address_ambg_backend.json
+address_ambg_list.json
+address_rinkeby3.json
+address_rinkeby4.json
+hardhat.config.js
+sec.js
