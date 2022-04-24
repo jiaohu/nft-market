@@ -4,8 +4,6 @@ const {ethers} = require("hardhat");
 const {defaultAbiCoder} = require("ethers/lib/utils");
 const eth_util = require("ethereumjs-util");
 
-// uri: https://ipfs.io/ipfs/QmSrKe2by16E921ZJGVJvH99BC5R8cG42i2QwBKMH7TTCm?filename=ac345982b2b7d0a2f86247cdcdef76094b369a33.jpeg
-
 
 const {expect} = require("chai");
 const utils_abi = require("../utils/abi.js")
